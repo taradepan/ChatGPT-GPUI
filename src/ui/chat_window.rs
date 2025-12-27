@@ -45,7 +45,7 @@ impl ChatWindow {
         if self.is_loading {
             return;
         }
-        
+
         let content = self.text_input.read(cx).content.trim().to_string();
         if content.is_empty() {
             return;
@@ -103,16 +103,19 @@ impl ChatWindow {
 
             for token in rx {
                 accumulated_content.push_str(&token);
-                
+
                 let now = Instant::now();
-                let should_update = now.duration_since(last_update).as_millis() >= DEBOUNCE_MS as u128;
-                
+                let should_update =
+                    now.duration_since(last_update).as_millis() >= DEBOUNCE_MS as u128;
+
                 if should_update {
                     last_update = now;
-                    
+
                     if let Err(err) = cx.update(|cx| {
                         this.update(cx, |this, cx| {
-                            if let Some(msg) = this.messages.iter_mut().find(|m| m.id == target_message_id) {
+                            if let Some(msg) =
+                                this.messages.iter_mut().find(|m| m.id == target_message_id)
+                            {
                                 msg.content = accumulated_content.clone();
                                 cx.notify();
                             }
@@ -123,10 +126,11 @@ impl ChatWindow {
                     }
                 }
             }
-            
+
             if let Err(err) = cx.update(|cx| {
                 this.update(cx, |this, cx| {
-                    if let Some(msg) = this.messages.iter_mut().find(|m| m.id == target_message_id) {
+                    if let Some(msg) = this.messages.iter_mut().find(|m| m.id == target_message_id)
+                    {
                         msg.content = accumulated_content.clone();
                         cx.notify();
                     }
@@ -140,7 +144,9 @@ impl ChatWindow {
                     this.is_loading = false;
 
                     if let Err(err) = streaming_result {
-                        if let Some(msg) = this.messages.iter_mut().find(|m| m.id == target_message_id) {
+                        if let Some(msg) =
+                            this.messages.iter_mut().find(|m| m.id == target_message_id)
+                        {
                             // Append error to existing content
                             if !msg.content.is_empty() {
                                 msg.content.push_str("\n\n");
@@ -195,9 +201,7 @@ impl Render for ChatWindow {
                     .gap_2()
                     .children(self.messages.iter().map(|msg| {
                         let (bg_color, text_prefix, label_color) = match msg.role {
-                            Role::User => {
-                                (theme::user_message_bg(), "You", hsla(0., 0., 0.9, 1.0))
-                            }
+                            Role::User => (theme::user_message_bg(), "You", hsla(0., 0., 0.9, 1.0)),
                             Role::Assistant => {
                                 (theme::assistant_message_bg(), "AI", hsla(0., 0., 0.85, 1.0))
                             }
